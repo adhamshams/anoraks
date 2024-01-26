@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, SafeAreaView, Text, Dimensions, TouchableOpacity } from "react-native";
 import { signInWithEmailAndPassword, getAuth, sendPasswordResetEmail } from 'firebase/auth'
-import { doc, getDoc } from "firebase/firestore";
-import { db } from '../firebase'
-import { StackActions } from '@react-navigation/native';
 import Button from "../components/Button";
 import { LinearGradient } from 'expo-linear-gradient';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -67,30 +64,24 @@ const Login = ({ navigation }) => {
       alert('Please enter your password')
     }
     else {
-      const signIn = new Promise((resolve) => {
-        const userCredentials = signInWithEmailAndPassword(auth, email, password)
-        resolve(userCredentials);
-      });
-      const fetchUserData = (resultFromSignIn) => {
-        return new Promise((resolve) => {
-          const docRef = doc(db, "users", resultFromSignIn.user.uid);
-          const docSnap = getDoc(docRef);
-          resolve(docSnap.data());
-        });
-      };
-      signIn
-        .then((resultFromSignIn) => fetchUserData(resultFromSignIn))
-        .then((userData) => {
-          const pushAction = StackActions.replace('MainTabs', { user: userData });
-          navigation.dispatch(pushAction)
-        })
-        .catch((error) => {
-          console.log(error)
+      signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
+        // Signed in
+        navigation.navigate('MainTabs')
+      })
+      .catch((error) => {
+        var errorMessage = error.message;
+        console.log(errorMessage)
+        if (errorMessage === "Firebase: Error (auth/invalid-credential).") {
+          alert("Incorrect email or password")
           setEmailError(true)
           setPasswordError(true)
-          alert('Invalid Email or Password')
           setLoading(false)
-        });
+        }
+        else {
+          alert("An error has occured")
+          setLoading(false)
+        }
+      })
     }
   }
 
@@ -117,6 +108,7 @@ const Login = ({ navigation }) => {
           maxLength={50}
           textContentType="emailAddress"
           autoComplete="email"
+          keyboardType="email-address"
           keyboardAppearance="dark"
           onChangeText={(text) => { setEmail(text), emailError ? setEmailError(false) : null }}
           value={email}

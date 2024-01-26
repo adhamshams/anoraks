@@ -4,8 +4,7 @@ import PhoneInput from 'react-native-phone-number-input';
 import Button from "../components/Button";
 import { LinearGradient } from 'expo-linear-gradient';
 import { db } from '../firebase'
-import { getApp } from "firebase/app"
-import { createUserWithEmailAndPassword, updateProfile, getAuth, PhoneAuthProvider, signInWithCredential } from 'firebase/auth'
+import { updateProfile, getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import { setDoc, doc } from 'firebase/firestore'
 import { RFValue } from 'react-native-responsive-fontsize';
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetTextInput } from '@gorhom/bottom-sheet';
@@ -13,7 +12,6 @@ import { MotiView, MotiText, useDynamicAnimation } from 'moti';
 import { CodeField, Cursor, useClearByFocusCell } from 'react-native-confirmation-code-field';
 import { AntDesign } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha'
 
 const InnerStack = createStackNavigator();
 
@@ -44,10 +42,6 @@ const PersonalInformation = ({ navigation }) => {
   const [phoneNumberError, setPhoneNumberError] = useState(false);
 
   const [countryCode, setCountryCode] = useState("+20");
-
-  const app = getApp();
-  const auth = getAuth();
-  const recaptchaVerifier = React.useRef(null);
 
   const dynamicAnimation = useDynamicAnimation(() => ({
     opacity: 0,
@@ -94,26 +88,33 @@ const PersonalInformation = ({ navigation }) => {
       setLoading(false)
     }
     else {
-      const phoneProvider = new PhoneAuthProvider(auth);
-      phoneProvider.verifyPhoneNumber(
-        countryCode + phoneNumber,
-        recaptchaVerifier.current
-      ).then((verificationId) => {
+      const data = JSON.stringify({
+        to: countryCode + phoneNumber,
+        channel: "sms",
+      });
+      const response = await fetch(`${process.env.EXPO_PUBLIC_verify}/start-verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: data,
+      });
+      const json = await response.json();
+      if (json.success) {
+        navigation.navigate('VerifyPhoneNumber', { firstName: firstName, lastName: lastName, phoneNumber: countryCode + phoneNumber })
         setLoading(false)
-        console.log(verificationId)
-        navigation.navigate('VerifyPhoneNumber', { verificationId: verificationId, firstName: firstName, lastName: lastName, phoneNumber: countryCode + phoneNumber })
-      }).catch((error) => {
-        setLoading(false)
-        if (error.code === 'auth/invalid-phone-number') {
-          alert('Please enter a valid phone number')
-          setPhoneNumberError(true)
+      }
+      else {
+        if (json.error.includes("Invalid parameter `To`:")) {
+          setLoading(false)
+          setErrorMsg('Please enter a valid phone number')
+          setNumberError(true)
         }
         else {
-          console.log(error)
-          alert('An error has occured')
+          setLoading(false)
+          setErrorMsg('An error has occured')
         }
-      });
-      //navigation.navigate('VerifyPhoneNumber', { firstName: firstName, lastName: lastName, phoneNumber: countryCode + phoneNumber })
+      }
     }
   }
 
@@ -188,11 +189,6 @@ const PersonalInformation = ({ navigation }) => {
           codeTextStyle={{ color: '#124c7d' }}
           flagButtonStyle={{ color: '#124c7d' }}
         />
-        <FirebaseRecaptchaVerifierModal
-          ref={recaptchaVerifier}
-          firebaseConfig={app.options}
-          attemptInvisibleVerification={true}
-        />
       </MotiView>
       <MotiView state={dynamicAnimation} delay={500} style={{ justifyContent: 'center', paddingHorizontal: width * 0.07, marginBottom: height * 0.01 }}>
         <Button isLoading={loading} onPress={() => checkData()} title={'NEXT STEP'} style={{ height: RFValue(45), width: '100%', color: '#fff', backgroundColor: "#124c7d", fontSize: RFValue(15), alignSelf: 'center' }} />
@@ -205,14 +201,9 @@ function VerifyPhoneNumber({ navigation, route }) {
 
   const [loading, setLoading] = useState(false);
 
-  const [verificationId, setVerificationId] = useState(route.params.verificationId);
   const [otp, setOtp] = useState('');
 
   const [timer, setTimer] = useState(60);
-
-  const app = getApp();
-  const auth = getAuth();
-  const recaptchaVerifier = React.useRef(null);
 
   useEffect(() => {
     let intervalId;
@@ -235,17 +226,7 @@ function VerifyPhoneNumber({ navigation, route }) {
 
   const resendSMS = async () => {
     if (timer === 0) {
-      setTimer(60)
-      const phoneProvider = new PhoneAuthProvider(auth);
-      phoneProvider.verifyPhoneNumber(
-        route.params.phoneNumber,
-        recaptchaVerifier.current
-      ).then((verificationId) => {
-        setVerificationId(verificationId)
-        console.log(verificationId)
-      }).catch((error) => {
-        console.log(error)
-      });
+
     }
   }
 
@@ -256,24 +237,32 @@ function VerifyPhoneNumber({ navigation, route }) {
 
   const verifyNumber = async () => {
     setLoading(true);
-    const credential = PhoneAuthProvider.credential(verificationId, otp);
-    signInWithCredential(auth, credential).then(async (res) => {
-      console.log(res)
+    const data = JSON.stringify({
+      to: route.params.phoneNumber,
+      code: otp,
+    });
+    const response = await fetch(`${process.env.EXPO_PUBLIC_verify}/check-verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: data,
+    });
+    const json = await response.json();
+    if (json.success) {
       navigation.navigate('SetEmailAndPassword', { firstName: route.params.firstName, lastName: route.params.lastName, phoneNumber: route.params.phoneNumber })
-    }).catch((error) => {
-      if (error.code === 'auth/invalid-verification-code') {
-        alert('Invalid verification code')
-      }
-      else if (error.code === 'auth/code-expired') {
-        alert('The verification code has expired')
+      setLoading(false)
+    }
+    else {
+      if (json.message === "Incorrect token.") {
+        setLoading(false)
+        alert('Invalid Code')
       }
       else {
-        console.log(error)
+        setLoading(false)
         alert('An error has occured')
       }
-      setLoading(false)
-    });
-    //navigation.navigate('SetEmailAndPassword', { firstName: route.params.firstName, lastName: route.params.lastName, phoneNumber: route.params.phoneNumber })
+    }
   };
 
   return (
@@ -312,17 +301,12 @@ function VerifyPhoneNumber({ navigation, route }) {
         </TouchableOpacity>
       </View>
       {loading ? <ActivityIndicator size="small" color="#124c7d" animating={true} style={{ marginTop: height * 0.02 }} /> : null}
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={app.options}
-        attemptInvisibleVerification={true}
-      />
     </SafeAreaView>
   )
 
 }
 
-function SetEmailAndPassword({ navigation, route }) {
+const SetEmailAndPassword = ({ navigation, route }) => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -401,37 +385,41 @@ function SetEmailAndPassword({ navigation, route }) {
       setLoading(false)
     }
     else {
-      const results = await Promise.allSettled([
-        //auth.currentUser.reload(),
-        setDoc(doc(db, "users", auth.currentUser.uid), {
-          firstName: route.params.firstName,
-          lastName: route.params.lastName,
-          phoneNumber: route.params.phoneNumber,
-        }),
-        updateProfile(auth.currentUser, {
-          displayName: firstName
-        }),
-        updateEmail(auth.currentUser, email),
-        updatePassword(auth.currentUser, password)
-      ])
-      if (results[0].status === 'rejected' || results[1].status === 'rejected' || results[2].status === 'rejected' || results[3].status === 'rejected' || results[4].status === 'rejected') {
-        setLoading(false)
-        alert('An error has occured')
-      } else {
-        navigation.navigate('MainTabs', {
-          user: {
+      createUserWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
+        const results = await Promise.allSettled([
+          setDoc(doc(db, "users", auth.currentUser.uid), {
             firstName: route.params.firstName,
             lastName: route.params.lastName,
             phoneNumber: route.params.phoneNumber,
-          }
-        })
+          }),
+          updateProfile(auth.currentUser, {
+            displayName: route.params.firstName
+          }),
+        ])
+        if (results[0].status === 'rejected' || results[1].status === 'rejected') {
+          setLoading(false)
+          alert('An error has occured')
+        } else {
+          setLoading(false)
+          navigation.navigate('MainTabs')
+        }
       }
+      ).catch((error) => {
+        setLoading(false)
+        if (error.code === 'auth/email-already-in-use') {
+          alert('Email already in use')
+        } else if (error.code === 'auth/invalid-email') {
+          alert('Invalid email address')
+        } else {
+          alert('An error has occured')
+        }
+      })
     }
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', display: 'flex'}}>
-      <Text style={{ color: '#193657', fontSize: RFValue(12), fontWeight: 700, textAlign: 'center', marginTop: height * 0.02 }}>Your password should contain a minimum of eight characters. Please use a combination of uppercase and lowercase letters along with numbers.</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', display: 'flex' }}>
+      <Text style={{ color: '#193657', fontSize: RFValue(12), textAlign: 'center', marginTop: height * 0.02, marginHorizontal: width * 0.07 }}>Your password should contain a minimum of eight characters. Please use a combination of uppercase and lowercase letters along with numbers.</Text>
       <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02, marginHorizontal: width * 0.07 }}>Email</Text>
       <BottomSheetTextInput
         placeholderTextColor="rgba(0,0,0,0.3)"
@@ -444,7 +432,7 @@ function SetEmailAndPassword({ navigation, route }) {
             borderBottomColor: emailError ? 'red' : '#124c7d',
             height: RFValue(45),
             fontSize: RFValue(15),
-            color: '#124c7d', 
+            color: '#124c7d',
             marginHorizontal: width * 0.07
           }
         }
@@ -458,7 +446,7 @@ function SetEmailAndPassword({ navigation, route }) {
         onChangeText={(text) => setEmail(text)}
         value={email}
       />
-      <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02, marginHorizontal: width * 0.07}}>Password</Text>
+      <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02, marginHorizontal: width * 0.07 }}>Password</Text>
       <BottomSheetTextInput
         placeholderTextColor="rgba(0,0,0,0.3)"
         shouldCancelWhenOutside
@@ -471,7 +459,7 @@ function SetEmailAndPassword({ navigation, route }) {
             borderBottomColor: passwordError ? 'red' : '#124c7d',
             height: RFValue(45),
             fontSize: RFValue(15),
-            color: '#124c7d', 
+            color: '#124c7d',
             marginHorizontal: width * 0.07
           }
         }
@@ -497,7 +485,7 @@ function SetEmailAndPassword({ navigation, route }) {
             borderBottomColor: confirmPasswordError ? 'red' : '#124c7d',
             height: RFValue(45),
             fontSize: RFValue(15),
-            color: '#124c7d', 
+            color: '#124c7d',
             marginHorizontal: width * 0.07
           }
         }

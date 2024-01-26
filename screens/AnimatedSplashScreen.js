@@ -1,52 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { Animated, StyleSheet, View, StatusBar } from "react-native";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { StackActions } from '@react-navigation/native';
+import { getAuth } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from '../firebase'
+import app from '../app.json';
 
 function AnimatedSplashScreen({ navigation }) {
 
   const opacity = useState(new Animated.Value(1))[0]
   const auth = getAuth();
 
-  const getStartedPushAction = StackActions.replace('GetStartedScreen');
-  const mainTabsPushAction = StackActions.replace('MainTabs');
-
   useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (auth.currentUser) {
-        try {
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
+    async function prepare() {
+      let appVersion = app.expo.version;
+      try {
+        let serverVersion = await getDoc(doc(db, "app", "version"));
+        if (serverVersion.data().version !== appVersion) {
+          alert("Please update the app to the latest version.");
+        } else {
           setTimeout(() => {
             Animated.timing(opacity, {
               toValue: 0,
-              timing: 500,
-              useNativeDriver: true
-            }).start(() => navigation.dispatch(mainTabsPushAction, { user: docSnap.data() }))
-          }, 700)
-        } catch (error) {
-          setTimeout(() => {
-            Animated.timing(opacity, {
-              toValue: 0,
-              timing: 500,
-              useNativeDriver: true
-            }).start(() => navigation.dispatch(getStartedPushAction))
-          }, 700)
+              duration: 500,
+              useNativeDriver: true,
+            }).start(() => {
+              if (auth.currentUser) {
+                navigation.navigate("MainTabs");
+              } else {
+                navigation.navigate("GetStartedScreen");
+              }
+            })
+          }, 700);
         }
+      } catch (error) {
+        alert("An error has occured.")
       }
-      else {
-        setTimeout(() => {
-          Animated.timing(opacity, {
-            toValue: 0,
-            timing: 500,
-            useNativeDriver: true
-          }).start(() => navigation.dispatch(getStartedPushAction))
-        }, 1700)
-      }
-    })
-  }, [])
+    }
+    prepare();
+  }, []);
 
   return (
     <View style={styles.background}>
