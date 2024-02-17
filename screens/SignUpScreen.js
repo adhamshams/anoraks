@@ -8,7 +8,7 @@ import { updateProfile, getAuth, createUserWithEmailAndPassword } from 'firebase
 import { setDoc, doc } from 'firebase/firestore'
 import { RFValue } from 'react-native-responsive-fontsize';
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetTextInput } from '@gorhom/bottom-sheet';
-import { MotiView, MotiText, useDynamicAnimation } from 'moti';
+import { MotiView, useDynamicAnimation } from 'moti';
 import { CodeField, Cursor, useClearByFocusCell } from 'react-native-confirmation-code-field';
 import { AntDesign } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -35,30 +35,17 @@ const PersonalInformation = ({ navigation }) => {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [birthDay, setBirthDay] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthYear, setBirthYear] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const [firstNameError, setFirstNameError] = useState(false);
   const [lastNameError, setLastNameError] = useState(false);
+  const [birthDateError, setBirthDateError] = useState(false);
   const [phoneNumberError, setPhoneNumberError] = useState(false);
 
   const [countryCode, setCountryCode] = useState("+20");
-
-  const dynamicAnimation = useDynamicAnimation(() => ({
-    opacity: 0,
-    translateY: 40,
-  }));
-
-  useEffect(() => {
-    setTimeout(
-      () =>
-        dynamicAnimation.animateTo((current) => ({
-          ...current,
-          opacity: 1,
-          translateY: 0,
-        })),
-      200
-    );
-  }, []);
 
   useEffect(() => {
     if (phoneNumber.includes(countryCode)) {
@@ -66,6 +53,16 @@ const PersonalInformation = ({ navigation }) => {
       setPhoneNumber(n)
     }
   }, [phoneNumber, countryCode])
+
+  function getAge(date) {
+    var today = new Date();
+    var age = today.getFullYear() - date.getFullYear();
+    var m = today.getMonth() - date.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
+      age--;
+    }
+    return age;
+  }
 
   const checkData = async () => {
     setLoading(true)
@@ -80,6 +77,26 @@ const PersonalInformation = ({ navigation }) => {
     else if (lastName.length === 0) {
       setLastNameError(true)
       alert('Please enter your last name')
+      setLoading(false)
+    }
+    else if(birthDay.length === 0 || birthMonth.length === 0 || birthYear.length === 0) {
+      setBirthDateError(true)
+      alert('Please enter your birthdate')
+      setLoading(false)
+    }
+    else if(birthDay.length < 2 || birthMonth.length < 2 || birthYear.length < 4) {
+      setBirthDateError(true)
+      alert('Please enter a valid birthdate')
+      setLoading(false)
+    }
+    else if (getAge(new Date(birthYear, birthMonth - 1, birthDay)) < 12) {
+      setBirthDateError(true)
+      alert('You have to be greater than 12 years old')
+      setLoading(false)
+    }
+    else if (getAge(new Date(birthYear, birthMonth - 1, birthDay)) > 120) {
+      setBirthDateError(true)
+      alert('Please enter a valid age')
       setLoading(false)
     }
     else if (phoneNumber.length === 0) {
@@ -101,7 +118,7 @@ const PersonalInformation = ({ navigation }) => {
       });
       const json = await response.json();
       if (json.success) {
-        navigation.navigate('VerifyPhoneNumber', { firstName: firstName, lastName: lastName, phoneNumber: countryCode + phoneNumber })
+        navigation.navigate('VerifyPhoneNumber', { firstName: firstName, lastName: lastName, phoneNumber: countryCode + phoneNumber, dateOfBirth: new Date(birthYear, birthMonth - 1, birthDay).toString() })
         setLoading(false)
       }
       else {
@@ -118,61 +135,186 @@ const PersonalInformation = ({ navigation }) => {
     }
   }
 
+  const dynamicAnimation = useDynamicAnimation(() => ({
+    opacity: 0,
+    translateY: 40,
+  }));
+
+  useEffect(() => {
+    setTimeout(
+      () =>
+        dynamicAnimation.animateTo((current) => ({
+          ...current,
+          opacity: 1,
+          translateY: 0,
+        })),
+      200
+    );
+  }, []);
+
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'space-between', backgroundColor: '#fff' }}>
       <MotiView state={dynamicAnimation} delay={300} style={{ paddingHorizontal: width * 0.07 }}>
-        <MotiText state={dynamicAnimation} style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>First Name</MotiText>
-        <BottomSheetTextInput
-          placeholderTextColor="rgba(0,0,0,0.3)"
-          shouldCancelWhenOutside
-          placeholder="Ex: Adham"
-          style={
-            {
-              borderBottomWidth: 2,
-              borderBottomColor: firstNameError ? 'red' : '#124c7d',
-              height: RFValue(45),
-              fontSize: RFValue(15),
-              color: '#124c7d'
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: height * 0.02 }}>
+          <View style={{ flexDirection: 'column', width: '47%' }}>
+            <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700 }}>First Name</Text>
+            <BottomSheetTextInput
+              placeholderTextColor="rgba(0,0,0,0.3)"
+              shouldCancelWhenOutside
+              placeholder="Ex: Adham"
+              style={
+                {
+                  borderBottomWidth: 2,
+                  borderBottomColor: firstNameError ? 'red' : '#124c7d',
+                  height: RFValue(45),
+                  fontSize: RFValue(15),
+                  color: '#124c7d'
+                }
+              }
+              returnKeyType={'next'}
+              onSubmitEditing={() => { this.secondTextInput.focus() }}
+              blurOnSubmit={false}
+              maxLength={50}
+              textContentType="givenName"
+              autoComplete="name-given"
+              onFocus={() => setFocus(false)}
+              keyboardAppearance="dark"
+              onChangeText={(text) => { setFirstName(text); firstNameError ? setFirstNameError(false) : null }}
+              value={firstName}
+            />
+          </View>
+          <View style={{ flexDirection: 'column', width: '47%' }}>
+            <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700 }}>Last Name</Text>
+            <BottomSheetTextInput
+              placeholderTextColor="rgba(0,0,0,0.3)"
+              shouldCancelWhenOutside
+              placeholder="Ex: Amr"
+              ref={(input) => { this.secondTextInput = input }}
+              style={
+                {
+                  borderBottomWidth: 2,
+                  borderBottomColor: lastNameError ? 'red' : '#124c7d',
+                  height: RFValue(45),
+                  fontSize: RFValue(15),
+                  color: '#124c7d'
+                }
+              }
+              returnKeyType={'next'}
+              onSubmitEditing={() => this.dayTextInput.focus()}
+              blurOnSubmit={false}
+              maxLength={50}
+              textContentType="familyName"
+              autoComplete="family-name"
+              onFocus={() => setFocus(false)}
+              keyboardAppearance="dark"
+              onChangeText={(text) => { setLastName(text); lastNameError ? setLastNameError(false) : null }}
+              value={lastName}
+            />
+          </View>
+        </View>
+        <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Date Of Birth</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <BottomSheetTextInput
+            placeholderTextColor="rgba(0,0,0,0.3)"
+            shouldCancelWhenOutside
+            ref={(input) => { this.dayTextInput = input }}
+            onSubmitEditing={() => this.monthTextInput.focus()}
+            placeholder="DD"
+            style={
+              {
+                borderBottomWidth: 2,
+                borderBottomColor: birthDateError ? 'red' : '#124c7d',
+                height: RFValue(45),
+                fontSize: RFValue(15),
+                color: '#124c7d',
+                width: '30%',
+                textAlign: 'center'
+              }
             }
-          }
-          returnKeyType={'next'}
-          onSubmitEditing={() => { this.secondTextInput.focus() }}
-          blurOnSubmit={false}
-          maxLength={50}
-          textContentType="givenName"
-          autoComplete="name-given"
-          onFocus={() => setFocus(false)}
-          keyboardAppearance="dark"
-          onChangeText={(text) => { setFirstName(text); firstNameError ? setFirstNameError(false) : null }}
-          value={firstName}
-        />
-        <MotiText state={dynamicAnimation} style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Last Name</MotiText>
-        <BottomSheetTextInput
-          placeholderTextColor="rgba(0,0,0,0.3)"
-          shouldCancelWhenOutside
-          placeholder="Ex: Amr"
-          ref={(input) => { this.secondTextInput = input }}
-          style={
-            {
-              borderBottomWidth: 2,
-              borderBottomColor: lastNameError ? 'red' : '#124c7d',
-              height: RFValue(45),
-              fontSize: RFValue(15),
-              color: '#124c7d'
+            returnKeyType={'next'}
+            blurOnSubmit={false}
+            maxLength={2}
+            autoComplete="birthdate-day"
+            keyboardAppearance="dark"
+            keyboardType="number-pad"
+            onFocus={() => setFocus(false)}
+            onChangeText={(text) => {
+              setBirthDay(text);
+              birthDateError ? setBirthDateError(false) : null;
+              if (text.length === 2) {
+                this.monthTextInput.focus()
+              }
+            }}
+            value={birthDay}
+          />
+          <BottomSheetTextInput
+            placeholderTextColor="rgba(0,0,0,0.3)"
+            shouldCancelWhenOutside
+            ref={(input) => { this.monthTextInput = input }}
+            onSubmitEditing={() => this.yearTextInput.focus()}
+            placeholder="MM"
+            style={
+              {
+                borderBottomWidth: 2,
+                borderBottomColor: birthDateError ? 'red' : '#124c7d',
+                height: RFValue(45),
+                fontSize: RFValue(15),
+                color: '#124c7d',
+                width: '30%',
+                textAlign: 'center'
+              }
             }
-          }
-          returnKeyType={'next'}
-          onSubmitEditing={() => setFocus(true)}
-          blurOnSubmit={false}
-          maxLength={50}
-          textContentType="familyName"
-          autoComplete="family-name"
-          onFocus={() => setFocus(false)}
-          keyboardAppearance="dark"
-          onChangeText={(text) => { setLastName(text); lastNameError ? setLastNameError(false) : null }}
-          value={lastName}
-        />
-        <MotiText state={dynamicAnimation} style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Phone Number</MotiText>
+            returnKeyType={'next'}
+            blurOnSubmit={false}
+            maxLength={2}
+            autoComplete="birthdate-month"
+            keyboardAppearance="dark"
+            keyboardType="number-pad"
+            onFocus={() => setFocus(false)}
+            onChangeText={(text) => {
+              setBirthMonth(text)
+              birthDateError ? setBirthDateError(false) : null;
+              if (text.length === 2) {
+                this.yearTextInput.focus()
+              }
+            }}
+            value={birthMonth}
+          />
+          <BottomSheetTextInput
+            placeholderTextColor="rgba(0,0,0,0.3)"
+            shouldCancelWhenOutside
+            ref={(input) => { this.yearTextInput = input }}
+            onSubmitEditing={() => setFocus(true)}
+            placeholder="YYYY"
+            style={
+              {
+                borderBottomWidth: 2,
+                borderBottomColor: birthDateError ? 'red' : '#124c7d',
+                height: RFValue(45),
+                fontSize: RFValue(15),
+                color: '#124c7d',
+                width: '30%',
+                textAlign: 'center'
+              }
+            }
+            returnKeyType={'next'}
+            blurOnSubmit={false}
+            maxLength={4}
+            autoComplete="birthdate-year"
+            keyboardAppearance="dark"
+            keyboardType="number-pad"
+            onFocus={() => setFocus(false)}
+            onChangeText={(text) => {
+              setBirthYear(text)
+              birthDateError ? setBirthDateError(false) : null;
+              if (text.length === 4) {
+                setFocus(true)
+              }
+            }}
+            value={birthYear}
+          />
+        </View>
+        <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Phone Number</Text>
         <PhoneInput
           value={phoneNumber}
           defaultCode="EG"
@@ -310,10 +452,8 @@ const SetEmailAndPassword = ({ navigation, route }) => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [passwordError, setPasswordError] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [emailError, setEmailError] = useState(false);
 
   const [conditionsMet, setConditionsMet] = useState([]);
@@ -362,7 +502,6 @@ const SetEmailAndPassword = ({ navigation, route }) => {
   const checkData = async () => {
     setLoading(true)
     setEmailError(false)
-    setConfirmPasswordError(false)
     setPasswordError(false)
     if (email.length === 0) {
       setEmailError(true)
@@ -377,11 +516,6 @@ const SetEmailAndPassword = ({ navigation, route }) => {
     else if (passowrdStrength !== 'Strong') {
       setPasswordError(true)
       alert('Please fulfill all password requirements')
-      setLoading(false)
-    }
-    else if (confirmPassword !== password) {
-      setConfirmPasswordError(true)
-      alert('Passwords do not match')
       setLoading(false)
     }
     else {
@@ -473,33 +607,7 @@ const SetEmailAndPassword = ({ navigation, route }) => {
         onChangeText={(text) => setPassword(text)}
         value={password}
       />
-      <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02, marginHorizontal: width * 0.07 }}>Confirm Password</Text>
-      <BottomSheetTextInput
-        placeholderTextColor="rgba(0,0,0,0.3)"
-        shouldCancelWhenOutside
-        placeholder="********"
-        ref={(input) => { this.fourthTextInput = input }}
-        style={
-          {
-            borderBottomWidth: 2,
-            borderBottomColor: confirmPasswordError ? 'red' : '#124c7d',
-            height: RFValue(45),
-            fontSize: RFValue(15),
-            color: '#124c7d',
-            marginHorizontal: width * 0.07
-          }
-        }
-        returnKeyType={'done'}
-        onSubmitEditing={() => checkData()}
-        blurOnSubmit={false}
-        maxLength={50}
-        secureTextEntry={true}
-        autoComplete="password-new"
-        keyboardAppearance="dark"
-        onChangeText={(text) => setConfirmPassword(text)}
-        value={confirmPassword}
-      />
-      <View style={{ width: '100%', flexDirection: 'row', display: 'flex', marginTop: height * 0.02, alignItems: 'center' }}>
+      <View style={{ width: '100%', flexDirection: 'row', display: 'flex', marginTop: height * 0.03, alignItems: 'center' }}>
         <View style={{ width: '26%', height: 4, backgroundColor: password.length > 0 ? color : 'gray', marginLeft: width * 0.07 }} />
         <View style={{ width: '26%', height: 4, marginLeft: width * 0.04, backgroundColor: passowrdStrength !== 'Weak' && password.length > 0 ? color : 'gray' }} />
         <View style={{ width: '26%', height: 4, marginLeft: width * 0.04, backgroundColor: passowrdStrength === 'Strong' && password.length > 0 ? color : 'gray' }} />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Animated, Text, ScrollView, Image, View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { Animated, Text, ScrollView, Image, View, StyleSheet, Dimensions, TouchableOpacity, ImageBackground } from 'react-native';
 import { View as MView, Text as MText, Image as MImage, AnimatePresence, useAnimationState } from 'moti';
 import { getAuth } from "firebase/auth";
 import { doc, onSnapshot, getDocs, collection } from 'firebase/firestore'
@@ -78,14 +78,14 @@ function SiwaScreen({ navigation, route }) {
                     source={require("../assets/siwa.jpg")}
                     style={{ width, height, opacity, resizeMode: 'cover', transform: [{ scale }] }}
                 />
-                <TouchableOpacity style={{ backgroundColor: '#fff', width: RFValue(40), height: RFValue(40), borderRadius: 12, justifyContent: 'center', alignItems: 'center', position: 'absolute', top: height * 0.08, left: width * 0.07 }} onPress={() => navigation.goBack()}>
-                    <AntDesign name="arrowleft" size={24} color="#124c7d" />
+                <TouchableOpacity style={{ backgroundColor: '#fff', width: RFValue(40), height: RFValue(40), borderRadius: 12, justifyContent: 'center', alignItems: 'center', position: 'absolute', top: height * 0.08, right: width * 0.07 }} onPress={() => navigation.goBack()}>
+                    <AntDesign name="close" size={24} color="#124c7d" />
                 </TouchableOpacity>
             </View>
             <View style={{ padding: 20, minHeight: height }}>
                 <View style={{ alignItems: 'center', height: _heightOffset, justifyContent: 'center' }}>
-                        <Animated.Text style={{ fontSize: RFValue(30), fontWeight: '800', textTransform: 'uppercase', color: 'white', opacity, textAlign: 'center'}} >SIWA</Animated.Text>
-                        <Animated.Text style={{ fontSize: RFValue(30), fontWeight: '800', textTransform: 'uppercase', position: 'absolute', opacity: opacityReversed, textAlign: 'center' }} >SIWA</Animated.Text>
+                    <Animated.Text style={{ fontSize: RFValue(30), fontWeight: '800', textTransform: 'uppercase', color: 'white', opacity, textAlign: 'center' }} >SIWA OASIS</Animated.Text>
+                    <Animated.Text style={{ fontSize: RFValue(30), fontWeight: '800', textTransform: 'uppercase', position: 'absolute', opacity: opacityReversed, textAlign: 'center' }} >SIWA OASIS</Animated.Text>
                 </View>
                 {/* {[...Array(10).keys()].map((index) => (
                     <MText transition={{ delay: 50 * index }} state={useFadeInDown} key={index} style={{ marginBottom: 20, fontSize: 16, lineHeight: 24, fontFamily: 'Georgia' }}>hi</MText>
@@ -120,6 +120,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         display: 'flex',
         flexDirection: 'column',
+    },
+    container: {
+        flex: 1,
+        alignItems: 'center',
     },
 });
 

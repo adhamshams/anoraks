@@ -110,7 +110,7 @@ export default function App() {
         <Stack.Screen name='LoginScreen' component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name='SignUpScreen' component={SignUpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false, gestureEnabled: false, animationEnabled: false }} />
-        <Stack.Screen name="SiwaScreen" component={SiwaScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="SiwaScreen" component={SiwaScreen} options={{ headerShown: false, gestureDirection: 'vertical' }} />
         <Stack.Screen name="DigitalPassportScreen" component={DigitalPassportScreen} options={{ headerTitle: 'Digital Passport' }} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { createStackNavigator } from '@react-navigation/stack';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetTextInput } from '@gorhom/bottom-sheet';
-import { MotiView, MotiText, useDynamicAnimation } from 'moti';
+import { MotiView, useDynamicAnimation } from 'moti';
 import { AntDesign } from '@expo/vector-icons';
 
 const InnerStack = createStackNavigator();
@@ -88,7 +88,7 @@ const Login = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'space-between', backgroundColor: '#fff' }}>
       <MotiView style={{ marginHorizontal: width * 0.07 }} state={dynamicAnimation} delay={300}>
-        <MotiText state={dynamicAnimation} style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Email</MotiText>
+        <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Email</Text>
         <BottomSheetTextInput
           placeholderTextColor="rgba(0,0,0,0.3)"
           shouldCancelWhenOutside
@@ -113,7 +113,7 @@ const Login = ({ navigation }) => {
           onChangeText={(text) => { setEmail(text), emailError ? setEmailError(false) : null }}
           value={email}
         />
-        <MotiText state={dynamicAnimation} style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Password</MotiText>
+        <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Password</Text>
         <BottomSheetTextInput
           placeholderTextColor="rgba(0,0,0,0.3)"
           shouldCancelWhenOutside
@@ -140,7 +140,7 @@ const Login = ({ navigation }) => {
           value={password}
         />
         <TouchableOpacity onPress={() => navigation.navigate('ForgetPassword')} style={{ marginLeft: 'auto' }}>
-          <MotiText state={dynamicAnimation} style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Forget Password?</MotiText>
+          <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02 }}>Forget Password?</Text>
         </TouchableOpacity>
       </MotiView>
       <MotiView state={dynamicAnimation} delay={500} style={{ justifyContent: 'center', marginHorizontal: width * 0.07, marginBottom: height * 0.01 }}>

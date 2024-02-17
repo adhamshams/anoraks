@@ -265,17 +265,7 @@ function OurStoryScreen({ navigation }) {
             <Text style={{ fontSize: RFValue(14), marginLeft: 20, color: '#1247cd', textDecorationLine: 'underline' }}>See All</Text>
           </TouchableOpacity>
         </View>
-        <View>
-          {loading ?
-            <ActivityIndicator style={{ marginVertical: height * 0.05, alignSelf: 'center' }} size={RFValue(15)} color={'#124c7d'} />
-            :
-            (lastFiveBlogs.length > 0 ?
-              null
-              :
-              <Text style={{ marginVertical: height * 0.05, textAlign: 'center', fontSize: RFValue(15) }}>No blogs found</Text>
-            )
-          }
-        </View>
+        <Text style={{ marginVertical: height * 0.05, textAlign: 'center', fontSize: RFValue(15) }}>No blogs found</Text>
         <Text style={{ fontSize: RFValue(25), fontWeight: 'bold', marginTop: height * 0.02, marginLeft: 20 }}>Join the Team</Text>
         <Text style={{ marginHorizontal: 20, fontSize: RFValue(12), marginHorizontal: 20, marginTop: height * 0.01 }}>Explore exciting opportunities and join the team by selecting from our diverse range of roles, each offering a unique pathway to contribute your skills and expertise.</Text>
         <View style={{ marginHorizontal: 20, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>

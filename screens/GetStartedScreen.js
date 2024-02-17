@@ -1,15 +1,9 @@
-import React, { useEffect } from "react";
-import { StyleSheet, View, Dimensions, Text, BackHandler, TouchableOpacity, ImageBackground, FlatList } from "react-native";
-import Animated, { Extrapolate,  useSharedValue, useAnimatedStyle, interpolate, useAnimatedScrollHandler, } from 'react-native-reanimated';
+import React, { useEffect, useRef } from "react";
+import { StyleSheet, View, Dimensions, Text, BackHandler, TouchableOpacity, ImageBackground, Animated } from "react-native";
 import { RFValue } from 'react-native-responsive-fontsize';
 import Button from "../components/Button";
 
 const { height, width } = Dimensions.get('window');
-
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
-
-const _indicatorSize = 4;
-const _spacing = 14;
 
 const _data = [
   {
@@ -29,123 +23,59 @@ const _data = [
   }
 ]
 
-const Details = ({ scrollY, item, index }) => {
-  const stylez = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(
-        scrollY.value,
-        [index - 1, index, index + 1],
-        [0, 1, 0],
-        Extrapolate.CLAMP
-      ),
-      transform: [
-        {
-          translateY: interpolate(
-            scrollY.value,
-            [index - 1, index, index + 1],
-            [20, 0, -20],
-            Extrapolate.CLAMP
-          ),
-        },
-      ],
+function GetStartedScreen({ navigation }) {
+
+  const slide1Opacity = useRef(new Animated.Value(1)).current;
+  const slide2Opacity = useRef(new Animated.Value(0)).current;
+  const slide3Opacity = useRef(new Animated.Value(0)).current;
+
+  const fadeInFadeOutAnimation = () => {
+    return Animated.sequence([
+      Animated.delay(5000),
+      Animated.timing(slide1Opacity, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slide2Opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.delay(5000),
+      Animated.timing(slide2Opacity, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slide3Opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.delay(5000),
+      Animated.timing(slide3Opacity, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slide1Opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]);
+  };
+
+  useEffect(() => {
+    const animation = fadeInFadeOutAnimation();
+    const loopedAnimation = Animated.loop(animation);
+    loopedAnimation.start();
+
+    return () => {
+      loopedAnimation.stop();
     };
-  });
-  return (
-    <View
-      style={[
-        {
-          position: 'absolute',
-          width: '100%',
-          zIndex: _data.length - index,
-          overflow: 'hidden',
-        },
-      ]}>
-      <Animated.View style={stylez}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.description}>{item.description}</Text>
-      </Animated.View>
-    </View>
-  );
-};
-
-const DetailsWrapper = ({ scrollY, data }) => {
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        bottom: 0,
-        top: '60%',
-        alignItems: 'center',
-        left: _spacing * 2 + _indicatorSize,
-        right: _spacing,
-      }}
-      pointerEvents="none">
-      {data.map((item, index) => {
-        return <Details key={index} item={item} index={index} scrollY={scrollY} />;
-      })}
-    </View>
-  );
-};
-
-const Item = ({ item, index }) => {
-  return (
-    <ImageBackground
-      source={ item.image }
-      style={{ width, height, backgroundColor: '#000' }}
-      imageStyle={{ flex: 1, resizeMode: 'cover', opacity: 0.7 }}
-    />
-  );
-};
-
-const PaginationDot = ({ scrollY, index }) => {
-  const stylez = useAnimatedStyle(() => {
-    return {
-      height: interpolate(
-        scrollY.value,
-        [index - 1, index, index + 1],
-        [_indicatorSize, _indicatorSize * 6, _indicatorSize],
-        Extrapolate.CLAMP
-      ),
-    };
-  });
-  
-  return (
-    <Animated.View
-      style={[
-        {
-          width: _indicatorSize,
-          height: _indicatorSize,
-          borderRadius: _indicatorSize / 2,
-          backgroundColor: 'white',
-          marginBottom: _indicatorSize / 2,
-        },
-        stylez,
-      ]}
-    />
-  );
-};
-
-const Pagination = ({ scrollY, data }) => {
-  return (
-    <View style={{ position: 'absolute', left: _spacing }}>
-      {data.map((_, index) => {
-        return <PaginationDot key={index} index={index} scrollY={scrollY} />;
-      })}
-    </View>
-  );
-};
-
-function GetStartedScreen({navigation}) {
-
-  const scrollY = useSharedValue(0);
-  const onScroll = useAnimatedScrollHandler({
-    onScroll: (ev) => {
-      scrollY.value = ev.contentOffset.y / height;
-    },
-    onMomentumEnd: (ev) => {
-      scrollY.value = Math.floor(ev.contentOffset.y / height);
-    },
-  });
+  }, []);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
@@ -154,25 +84,35 @@ function GetStartedScreen({navigation}) {
 
   return (
     <View style={styles.container}>
-      <AnimatedFlatList
-        data={_data}
-        renderItem={(props) => <Item {...props} />}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        pagingEnabled
-        decelerationRate="fast"
-        bounces={false}
-      />
-      <Pagination scrollY={scrollY} data={_data} />
-      <DetailsWrapper scrollY={scrollY} data={_data} />
-      <View style={{position: 'absolute', width: '100%', bottom: height * 0.05}}>
-        <Button onPress={() => navigation.navigate('SignUpScreen')} title={'SIGN UP'} style={{height: RFValue(45), width: '85%', color: '#124c7d', backgroundColor: "#fff", fontSize: RFValue(15), alignSelf: 'center'}}/>
-        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: height * 0.02}}>
-          <Text style={{textAlign: 'center', fontWeight: 500, fontSize: RFValue(15), textAlign: 'center', color: '#fff'}}>
+      <Animated.View style={[{ opacity: slide1Opacity, width, height }, styles.slide]}>
+        <ImageBackground source={_data[0].image} style={{ width: '100%', height: '100%', backgroundColor: '#000' }} imageStyle={{ opacity: 0.7 }}/>
+        <View style={{ position: 'absolute', bottom: height * 0.25, left: width * 0.075, display: 'flex', flexDirection: 'column', gap: height * 0.02, marginRight: width * 0.075 }}>
+          <Text style={{ color: '#fff', fontSize: RFValue(25), fontWeight: 900 }}>{ _data[0].title }</Text>
+          <Text style={{ color: '#fff', fontSize: RFValue(18), fontWeight: 700 }}>{ _data[0].description }</Text>
+        </View>
+      </Animated.View>
+      <Animated.View style={[{ opacity: slide2Opacity, width, height }, styles.slide]}>
+        <ImageBackground source={_data[1].image} style={{ width: '100%', height: '100%', backgroundColor: '#000' }} imageStyle={{ opacity: 0.7 }}/>
+        <View style={{ position: 'absolute', bottom: height * 0.25, left: width * 0.075, display: 'flex', flexDirection: 'column', gap: height * 0.02, marginRight: width * 0.075}}>
+          <Text style={{ color: '#fff', fontSize: RFValue(25), fontWeight: 900 }}>{ _data[1].title }</Text>
+          <Text style={{ color: '#fff', fontSize: RFValue(18), fontWeight: 700 }}>{ _data[1].description }</Text>
+        </View>
+      </Animated.View>
+      <Animated.View style={[{ opacity: slide3Opacity, width, height }, styles.slide]}>
+        <ImageBackground source={_data[2].image} style={{ width: '100%', height: '100%', backgroundColor: '#000' }} imageStyle={{ opacity: 0.7 }}/>
+        <View style={{ position: 'absolute', bottom: height * 0.25, left: width * 0.075, display: 'flex', flexDirection: 'column', gap: height * 0.02, marginRight: width * 0.075 }}>
+          <Text style={{ color: '#fff', fontSize: RFValue(25), fontWeight: 900 }}>{ _data[2].title }</Text>
+          <Text style={{ color: '#fff', fontSize: RFValue(18), fontWeight: 700 }}>{ _data[2].description }</Text>
+        </View>
+      </Animated.View>
+      <View style={{ position: 'absolute', width: '100%', bottom: height * 0.05 }}>
+        <Button onPress={() => navigation.navigate('SignUpScreen')} title={'SIGN UP'} style={{ height: RFValue(45), width: '85%', color: '#124c7d', backgroundColor: "#fff", fontSize: RFValue(15), alignSelf: 'center' }} />
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: height * 0.02 }}>
+          <Text style={{ textAlign: 'center', fontWeight: 500, fontSize: RFValue(15), textAlign: 'center', color: '#fff' }}>
             Already have an account?{'  '}
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
-            <Text style={{color: '#fff', fontWeight: 700, fontSize: RFValue(15)}}>
+            <Text style={{ color: '#fff', fontWeight: 700, fontSize: RFValue(15) }}>
               Login Now
             </Text>
           </TouchableOpacity>
@@ -186,19 +126,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#000',
+    backgroundColor: '#000'
   },
-  title: {
-    color: '#fff',
-    fontWeight: '900',
-    fontSize: RFValue(25)
+  slide: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
-  description: {
-    color: '#fff',
-    fontSize: RFValue(15),
-    fontWeight: '700',
-    marginTop: height * 0.02
-  }
 });
 
 export default GetStartedScreen;
