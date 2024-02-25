@@ -1,17 +1,36 @@
-import React, { useEffect } from "react";
-import { StyleSheet, View, SafeAreaView, Text, ScrollView, TouchableOpacity, Dimensions, BackHandler, Linking } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View, SafeAreaView, Text, ScrollView, TouchableOpacity, Dimensions, BackHandler, Linking, ActivityIndicator } from "react-native";
 import { AntDesign, FontAwesome5, Ionicons, Feather, FontAwesome } from '@expo/vector-icons';
 import app from '../app.json';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { getAuth } from "firebase/auth";
+import { StackActions } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
 function MoreScreen({ navigation }) {
 
+    const [loading, setLoading] = useState(false)
+
+    const auth = getAuth()
+
+    const pushAction = StackActions.replace('GetStartedScreen');
+
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
         return () => backHandler.remove()
     }, [])
+
+    const handleSignOut = async () => {
+        try {
+            setLoading(true)
+            await auth.signOut()
+            navigation.dispatch(pushAction)
+        } catch (error) {
+            setLoading(false)
+            alert("An error has occured")
+        }
+    }
 
     const openFacebookPage = () => {
         // Replace 'YOUR_FACEBOOK_PAGE_URL' with the actual URL of your Facebook page
@@ -55,60 +74,60 @@ function MoreScreen({ navigation }) {
             <ScrollView horizontal={false} showsVerticalScrollIndicator={false}>
                 <Text style={{ fontSize: 30, fontWeight: 'bold', paddingVertical: height * 0.02, textAlign: 'center' }}>Anoraks Travels</Text>
                 <TouchableOpacity onPress={() => null} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                    <View style={{ width: 30, height: 30, marginLeft: 20, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <FontAwesome5 name="user-alt" size={21} color="black" />
                     </View>
-                    <Text style={{ fontSize: 20, marginLeft: 20 }}>Edit Profile</Text>
-                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: 20, opacity: 0.4 }} />
+                    <Text style={{ fontSize: 20, marginLeft: width * 0.03 }}>Edit Profile</Text>
+                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: width * 0.05, opacity: 0.4 }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('DigitalPassportScreen')} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                    <View style={{ width: 30, height: 30, marginLeft: 20, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <FontAwesome5 name="passport" size={24} color="black" />
                     </View>
-                    <Text style={{ fontSize: 20, marginLeft: 20 }}>Digital Passport</Text>
-                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: 20, opacity: 0.4 }} />
+                    <Text style={{ fontSize: 20, marginLeft: width * 0.03 }}>Digital Passport</Text>
+                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: width * 0.05, opacity: 0.4 }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => null} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                    <View style={{ width: 30, height: 30, marginLeft: 20, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <FontAwesome5 name="plane" size={22} color="black" />
                     </View>
-                    <Text style={{ fontSize: 20, marginLeft: 20 }}>My Trips</Text>
-                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: 20, opacity: 0.4 }} />
+                    <Text style={{ fontSize: 20, marginLeft: width * 0.03 }}>My Trips</Text>
+                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: width * 0.05, opacity: 0.4 }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => null} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                    <View style={{ width: 30, height: 30, marginLeft: 20, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <FontAwesome5 name="trophy" size={22} color="black" />
                     </View>
-                    <Text style={{ fontSize: 20, marginLeft: 20 }}>Anoraks Rewards</Text>
-                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: 20, opacity: 0.4 }} />
+                    <Text style={{ fontSize: 20, marginLeft: width * 0.03 }}>Anoraks Rewards</Text>
+                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: width * 0.05, opacity: 0.4 }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => null} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                    <View style={{ width: 30, height: 30, marginLeft: 20, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <FontAwesome5 name="hand-holding-heart" size={22} color="black" />
                     </View>
-                    <Text style={{ fontSize: 20, marginLeft: 20 }}>Refer a Friend</Text>
-                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: 20, opacity: 0.4 }} />
+                    <Text style={{ fontSize: 20, marginLeft: width * 0.03 }}>Refer a Friend</Text>
+                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: width * 0.05, opacity: 0.4 }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => null} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                    <View style={{ width: 30, height: 30, marginLeft: 20, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <AntDesign name="questioncircle" size={24} color="black" />
                     </View>
-                    <Text style={{ fontSize: 20, marginLeft: 20 }}>Help</Text>
-                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: 20, opacity: 0.4 }} />
+                    <Text style={{ fontSize: 20, marginLeft: width * 0.03 }}>Help</Text>
+                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: width * 0.05, opacity: 0.4 }} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => null} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                    <View style={{ width: 30, height: 30, marginLeft: 20, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <FontAwesome name="file-text" size={22} color="black" />
                     </View>
-                    <Text style={{ fontSize: 20, marginLeft: 20 }}>Terms and Conditions</Text>
-                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: 20, opacity: 0.4 }} />
+                    <Text style={{ fontSize: 20, marginLeft: width * 0.03 }}>Terms and Conditions</Text>
+                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: width * 0.05, opacity: 0.4 }} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => null} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
-                    <View style={{ width: 30, height: 30, marginLeft: 20, justifyContent: 'center', alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => handleSignOut()} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
+                    <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <Ionicons name="log-out" size={25} color="black" />
                     </View>
-                    <Text style={{ fontSize: 20, marginLeft: 20 }}>Log Out</Text>
-                    <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: 20, opacity: 0.4 }} />
+                    <Text style={{ fontSize: 20, marginLeft: width * 0.03 }}>Log Out</Text>
+                    {!loading ? <AntDesign name="right" size={24} color="black" style={{ marginLeft: 'auto', marginRight: width * 0.05, opacity: 0.4 }} /> : <ActivityIndicator size={24} color={'black'} style={{marginLeft: 'auto', marginRight: width * 0.05}}/>}
                 </TouchableOpacity>
                 <View style={{ marginTop: height * 0.02, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: width * 0.07 }}>
                     <TouchableOpacity onPress={openFacebookPage}>

@@ -10,7 +10,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { MotiView, useDynamicAnimation } from 'moti';
 import { CodeField, Cursor, useClearByFocusCell } from 'react-native-confirmation-code-field';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 
 const InnerStack = createStackNavigator();
@@ -79,12 +79,12 @@ const PersonalInformation = ({ navigation }) => {
       alert('Please enter your last name')
       setLoading(false)
     }
-    else if(birthDay.length === 0 || birthMonth.length === 0 || birthYear.length === 0) {
+    else if (birthDay.length === 0 || birthMonth.length === 0 || birthYear.length === 0) {
       setBirthDateError(true)
       alert('Please enter your birthdate')
       setLoading(false)
     }
-    else if(birthDay.length < 2 || birthMonth.length < 2 || birthYear.length < 4) {
+    else if (birthDay.length < 2 || birthMonth.length < 2 || birthYear.length < 4) {
       setBirthDateError(true)
       alert('Please enter a valid birthdate')
       setLoading(false)
@@ -452,13 +452,13 @@ const SetEmailAndPassword = ({ navigation, route }) => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [passwordError, setPasswordError] = useState("");
   const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
 
   const [conditionsMet, setConditionsMet] = useState([]);
-  const [passowrdStrength, setPasswordStrength] = useState('Weak');
-  const [color, setColor] = useState('red');
 
   const [loading, setLoading] = useState(false);
 
@@ -484,18 +484,6 @@ const SetEmailAndPassword = ({ navigation, route }) => {
     else if (!/[A-Z]/.test(password) && arr.includes('upper')) {
       arr.splice(arr.indexOf('upper'), 1);
     }
-    if (arr.length <= 1) {
-      setPasswordStrength('Weak')
-      setColor('red')
-    }
-    else if (arr.length === 2) {
-      setPasswordStrength('Medium')
-      setColor('orange')
-    }
-    else if (arr.length === 3) {
-      setPasswordStrength('Strong')
-      setColor('green')
-    }
     setConditionsMet(arr)
   }, [password])
 
@@ -513,9 +501,19 @@ const SetEmailAndPassword = ({ navigation, route }) => {
       alert('Please enter a password')
       setLoading(false)
     }
-    else if (passowrdStrength !== 'Strong') {
+    else if(confirmPassword.length === 0) {
+      setConfirmPasswordError(true)
+      alert('Please confirm your password')
+      setLoading(false)
+    }
+    else if (conditionsMet.length < 3) {
       setPasswordError(true)
       alert('Please fulfill all password requirements')
+      setLoading(false)
+    }
+    else if (confirmPassword !== password) {
+      setConfirmPasswordError(true)
+      alert('Passwords do not match')
       setLoading(false)
     }
     else {
@@ -525,6 +523,10 @@ const SetEmailAndPassword = ({ navigation, route }) => {
             firstName: route.params.firstName,
             lastName: route.params.lastName,
             phoneNumber: route.params.phoneNumber,
+            email: email,
+            trips: [],
+            level: 0,
+            points: 0
           }),
           updateProfile(auth.currentUser, {
             displayName: route.params.firstName
@@ -553,7 +555,6 @@ const SetEmailAndPassword = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff', display: 'flex' }}>
-      <Text style={{ color: '#193657', fontSize: RFValue(12), textAlign: 'center', marginTop: height * 0.02, marginHorizontal: width * 0.07 }}>Your password should contain a minimum of eight characters. Please use a combination of uppercase and lowercase letters along with numbers.</Text>
       <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02, marginHorizontal: width * 0.07 }}>Email</Text>
       <BottomSheetTextInput
         placeholderTextColor="rgba(0,0,0,0.3)"
@@ -571,7 +572,7 @@ const SetEmailAndPassword = ({ navigation, route }) => {
           }
         }
         returnKeyType={'next'}
-        onSubmitEditing={() => { this.thirdTextInput.focus() }}
+        onSubmitEditing={() => { this.secondTextInput.focus() }}
         blurOnSubmit={false}
         maxLength={50}
         autoComplete="email"
@@ -586,7 +587,7 @@ const SetEmailAndPassword = ({ navigation, route }) => {
         shouldCancelWhenOutside
         passwordRules="minlength: 8; required: lower; required: upper; required: digit;"
         placeholder="********"
-        ref={(input) => { this.thirdTextInput = input }}
+        ref={(input) => { this.secondTextInput = input }}
         style={
           {
             borderBottomWidth: 2,
@@ -598,7 +599,7 @@ const SetEmailAndPassword = ({ navigation, route }) => {
           }
         }
         returnKeyType={'next'}
-        onSubmitEditing={() => this.fourthTextInput.focus()}
+        onSubmitEditing={() => this.thirdTextInput.focus()}
         blurOnSubmit={false}
         maxLength={50}
         secureTextEntry={true}
@@ -607,12 +608,45 @@ const SetEmailAndPassword = ({ navigation, route }) => {
         onChangeText={(text) => setPassword(text)}
         value={password}
       />
-      <View style={{ width: '100%', flexDirection: 'row', display: 'flex', marginTop: height * 0.03, alignItems: 'center' }}>
-        <View style={{ width: '26%', height: 4, backgroundColor: password.length > 0 ? color : 'gray', marginLeft: width * 0.07 }} />
-        <View style={{ width: '26%', height: 4, marginLeft: width * 0.04, backgroundColor: passowrdStrength !== 'Weak' && password.length > 0 ? color : 'gray' }} />
-        <View style={{ width: '26%', height: 4, marginLeft: width * 0.04, backgroundColor: passowrdStrength === 'Strong' && password.length > 0 ? color : 'gray' }} />
+      <Text style={{ color: '#124c7d', fontSize: RFValue(15), fontWeight: 700, marginTop: height * 0.02, marginHorizontal: width * 0.07 }}>Confirm Password</Text>
+      <BottomSheetTextInput
+        placeholderTextColor="rgba(0,0,0,0.3)"
+        shouldCancelWhenOutside
+        passwordRules="minlength: 8; required: lower; required: upper; required: digit;"
+        placeholder="********"
+        ref={(input) => { this.thirdTextInput = input }}
+        style={
+          {
+            borderBottomWidth: 2,
+            borderBottomColor: confirmPasswordError ? 'red' : '#124c7d',
+            height: RFValue(45),
+            fontSize: RFValue(15),
+            color: '#124c7d',
+            marginHorizontal: width * 0.07
+          }
+        }
+        returnKeyType={'done'}
+        onSubmitEditing={() => checkData()}
+        blurOnSubmit={false}
+        maxLength={50}
+        secureTextEntry={true}
+        autoComplete="password-new"
+        keyboardAppearance="dark"
+        onChangeText={(text) => setConfirmPassword(text)}
+        value={confirmPassword}
+      />
+      <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: height * 0.02, marginHorizontal: width * 0.07, gap: 10 }}>
+        {conditionsMet.includes('length') ? <AntDesign name="checkcircle" size={18} color="green" /> : <Entypo name="circle-with-cross" size={18} color="#ce1212" />}
+        <Text style={{ fontSize: RFValue(12), color: conditionsMet.includes('length') ? 'green' : '#ce1212' }}>Minimum eight characters</Text>
       </View>
-      <Text style={{ marginTop: height * 0.02, fontSize: RFValue(12), color: '#193657', textAlign: 'center' }}>Password Strength: <Text style={{ fontWeight: 900 }}>{password.length > 0 ? passowrdStrength : ''}</Text></Text>
+      <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: height * 0.02, marginHorizontal: width * 0.07, gap: 10 }}>
+        {conditionsMet.includes('number') ? <AntDesign name="checkcircle" size={18} color="green" /> : <Entypo name="circle-with-cross" size={18} color="#ce1212" />}
+        <Text style={{ fontSize: RFValue(12), color: conditionsMet.includes('number') ? 'green' : '#ce1212' }}>Minimum one number</Text>
+      </View>
+      <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: height * 0.02, marginHorizontal: width * 0.07, gap: 10 }}>
+        {conditionsMet.includes('upper') ? <AntDesign name="checkcircle" size={18} color="green" /> : <Entypo name="circle-with-cross" size={18} color="#ce1212" />}
+        <Text style={{ fontSize: RFValue(12), color: conditionsMet.includes('upper') ? 'green' : '#ce1212' }}>Minimum one upper case letter</Text>
+      </View>
       <View style={{ justifyContent: 'center', marginHorizontal: width * 0.07, marginTop: 'auto' }}>
         <Button isLoading={loading} onPress={() => checkData()} title={'SIGN UP'} style={{ height: RFValue(45), width: '100%', color: '#fff', backgroundColor: "#124c7d", fontSize: RFValue(15), alignSelf: 'center', marginBottom: height * 0.01 }} />
       </View>

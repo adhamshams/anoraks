@@ -3,7 +3,7 @@ import { Image, LogBox, Dimensions, Easing } from "react-native";
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen'
-import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
+import { MaterialCommunityIcons, FontAwesome, AntDesign } from '@expo/vector-icons';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -19,6 +19,7 @@ import SiwaScreen from './screens/SiwaScreen';
 import MoreScreen from './screens/MoreScreen';
 import OurStoryScreen from './screens/OurStoryScreen';
 import DigitalPassportScreen from './screens/DigitalPassportScreen';
+import PersonalizeTripScreen from './screens/PersonalizeTripScreen';
 
 const Stack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
@@ -104,7 +105,7 @@ export default function App() {
 
   return (
     <NavigationContainer onLayout={onLayoutRootView}>
-      <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#193657', shadowColor: '#100505' }, headerTintColor: '#fff', headerBackTitleVisible: false }}>
+      <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#193657', shadowColor: '#100505' }, headerTintColor: '#fff', headerBackTitleVisible: false, headerBackImage: () =>  <AntDesign name="arrowleft" size={24} color="#fff" style={{marginLeft: 20}}/>}}>
         <Stack.Screen name="AnimatedSplashScreen" component={AnimatedSplashScreen} options={{ headerShown: false }} />
         <Stack.Screen name="GetStartedScreen" component={GetStartedScreen} options={{ headerShown: false, animationEnabled: false, gestureEnabled: false }} />
         <Stack.Screen name='LoginScreen' component={LoginScreen} options={{ headerShown: false }} />
@@ -112,6 +113,7 @@ export default function App() {
         <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false, gestureEnabled: false, animationEnabled: false }} />
         <Stack.Screen name="SiwaScreen" component={SiwaScreen} options={{ headerShown: false, gestureDirection: 'vertical' }} />
         <Stack.Screen name="DigitalPassportScreen" component={DigitalPassportScreen} options={{ headerTitle: 'Digital Passport' }} />
+        <Stack.Screen name="PersonalizeTripScreen" component={PersonalizeTripScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

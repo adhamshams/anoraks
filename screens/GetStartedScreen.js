@@ -86,23 +86,23 @@ function GetStartedScreen({ navigation }) {
     <View style={styles.container}>
       <Animated.View style={[{ opacity: slide1Opacity, width, height }, styles.slide]}>
         <ImageBackground source={_data[0].image} style={{ width: '100%', height: '100%', backgroundColor: '#000' }} imageStyle={{ opacity: 0.7 }}/>
-        <View style={{ position: 'absolute', bottom: height * 0.25, left: width * 0.075, display: 'flex', flexDirection: 'column', gap: height * 0.02, marginRight: width * 0.075 }}>
-          <Text style={{ color: '#fff', fontSize: RFValue(25), fontWeight: 900 }}>{ _data[0].title }</Text>
-          <Text style={{ color: '#fff', fontSize: RFValue(18), fontWeight: 700 }}>{ _data[0].description }</Text>
+        <View style={{ position: 'absolute', bottom: height * 0.25, display: 'flex', flexDirection: 'column', gap: height * 0.02, width: width * 0.9, alignSelf: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: RFValue(24), fontWeight: 900 }}>{ _data[0].title }</Text>
+          <Text style={{ color: '#fff', fontSize: RFValue(17), fontWeight: 700 }}>{ _data[0].description }</Text>
         </View>
       </Animated.View>
       <Animated.View style={[{ opacity: slide2Opacity, width, height }, styles.slide]}>
         <ImageBackground source={_data[1].image} style={{ width: '100%', height: '100%', backgroundColor: '#000' }} imageStyle={{ opacity: 0.7 }}/>
-        <View style={{ position: 'absolute', bottom: height * 0.25, left: width * 0.075, display: 'flex', flexDirection: 'column', gap: height * 0.02, marginRight: width * 0.075}}>
-          <Text style={{ color: '#fff', fontSize: RFValue(25), fontWeight: 900 }}>{ _data[1].title }</Text>
-          <Text style={{ color: '#fff', fontSize: RFValue(18), fontWeight: 700 }}>{ _data[1].description }</Text>
+        <View style={{ position: 'absolute', bottom: height * 0.25, display: 'flex', flexDirection: 'column', gap: height * 0.02, width: width * 0.9, alignSelf: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: RFValue(24), fontWeight: 900 }}>{ _data[1].title }</Text>
+          <Text style={{ color: '#fff', fontSize: RFValue(17), fontWeight: 700 }}>{ _data[1].description }</Text>
         </View>
       </Animated.View>
       <Animated.View style={[{ opacity: slide3Opacity, width, height }, styles.slide]}>
         <ImageBackground source={_data[2].image} style={{ width: '100%', height: '100%', backgroundColor: '#000' }} imageStyle={{ opacity: 0.7 }}/>
-        <View style={{ position: 'absolute', bottom: height * 0.25, left: width * 0.075, display: 'flex', flexDirection: 'column', gap: height * 0.02, marginRight: width * 0.075 }}>
-          <Text style={{ color: '#fff', fontSize: RFValue(25), fontWeight: 900 }}>{ _data[2].title }</Text>
-          <Text style={{ color: '#fff', fontSize: RFValue(18), fontWeight: 700 }}>{ _data[2].description }</Text>
+        <View style={{ position: 'absolute', bottom: height * 0.25, display: 'flex', flexDirection: 'column', gap: height * 0.02, width: width * 0.9, alignSelf: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: RFValue(24), fontWeight: 900 }}>{ _data[2].title }</Text>
+          <Text style={{ color: '#fff', fontSize: RFValue(17), fontWeight: 700 }}>{ _data[2].description }</Text>
         </View>
       </Animated.View>
       <View style={{ position: 'absolute', width: '100%', bottom: height * 0.05 }}>
