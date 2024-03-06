@@ -229,11 +229,11 @@ function OurStoryScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.background}>
       <ScrollView horizontal={false} showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: RFValue(25), fontWeight: 'bold', marginTop: height * 0.02, marginLeft: width * 0.05 }}>Our Story</Text>
+        <Text style={{ fontSize: RFValue(23), fontWeight: 'bold', marginTop: height * 0.02, marginLeft: width * 0.05 }}>Our Story</Text>
         <Text style={{ marginHorizontal: width * 0.05, fontSize: RFValue(12), marginTop: height * 0.01 }}>Anoraks is a dynamic youth-focused travel agency that seeks to infuse energetic, humorous, and aesthetic elements into travel experiences, fostering the creation of unforgettable memories and bringing people together. At Anoraks, our guiding insight is rooted in our desire to share the transformative impact of travel that has bestowed upon us a heightened sense of self-confidence, valuable experiences, and the ability to weave compelling narratives. Through a commitment to novelty and perfectionism, we curate the most unique and unforgettable events.</Text>
         <Text style={{ marginHorizontal: width * 0.05, fontSize: RFValue(12), marginTop: height * 0.02 }}>Our journey began with the aspiration to share our travel adventures, connect with individuals of inspiring mindsets, and offer a reprieve from the daily stresses, encouraging people to bring out the best in themselves. The inception of Anoraks occurred on December 16, 2021. Our dedication to this endeavor has involved hard work, sacrifice of busy schedules, meticulous research for optimal destinations, handling reservations, negotiating deals, strategic planning, experimentation, and creative design.</Text>
         <Text style={{ marginHorizontal: width * 0.05, fontSize: RFValue(12), marginTop: height * 0.02 }}>As a brand, Anoraks surpasses all expectations, thanks to the tireless efforts of our team members. As we refine our online persona and set our meticulously crafted plans into action, we are poised to elevate the brand to new heights, continually enhancing the allure of our offerings.</Text>
-        <Text style={{ fontSize: RFValue(25), fontWeight: 'bold', marginTop: height * 0.02, marginLeft: width * 0.05 }}>Meet the Team</Text>
+        <Text style={{ fontSize: RFValue(23), fontWeight: 'bold', marginTop: height * 0.02, marginLeft: width * 0.05 }}>Meet the Team</Text>
         <Text style={{ marginHorizontal: width * 0.05, fontSize: RFValue(12), marginTop: height * 0.01, marginBottom: -_itemHeight * 0.4 }}>Get to know the talented individuals who bring passion, expertise, and a collaborative spirit to our team, driving innovation and success.</Text>
         <AnimatedFlatList
           data={data}
@@ -259,14 +259,7 @@ function OurStoryScreen({ navigation }) {
             );
           }}
         />
-        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: height * 0.02, justifyContent: 'space-between', paddingHorizontal: width * 0.05 }}>
-          <Text style={{ fontSize: RFValue(25), fontWeight: 'bold' }}>Blog Posts</Text>
-          <TouchableOpacity onPress={() => null}>
-            <Text style={{ fontSize: RFValue(14), color: '#1247cd', textDecorationLine: 'underline' }}>See All</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={{ marginVertical: height * 0.05, textAlign: 'center', fontSize: RFValue(15) }}>No blogs found</Text>
-        <Text style={{ fontSize: RFValue(25), fontWeight: 'bold', marginTop: height * 0.02, marginLeft: width * 0.05 }}>Join the Team</Text>
+        <Text style={{ fontSize: RFValue(23), fontWeight: 'bold', marginTop: height * 0.02, marginLeft: width * 0.05 }}>Join the Team</Text>
         <Text style={{ marginHorizontal: width * 0.05, fontSize: RFValue(12), marginTop: height * 0.01 }}>Explore exciting opportunities and join the team by selecting from our diverse range of roles, each offering a unique pathway to contribute your skills and expertise.</Text>
         <View style={{ marginHorizontal: width * 0.05, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <TouchableOpacity>
@@ -282,7 +275,7 @@ function OurStoryScreen({ navigation }) {
         </View>
         <TouchableOpacity>
           <ImageBackground source={require('../assets/organizer.jpg')} style={{ width: width - 40, height: height * 0.2, marginTop: height * 0.02, alignSelf: 'center', backgroundColor: '#000', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }} imageStyle={{ borderRadius: 12, opacity: 0.7, resizeMode: 'cover' }}>
-            <Text style={{ fontSize: RFValue(25), fontWeight: 'bold', color: '#fff', textDecorationLine: 'underline' }}>Organizer</Text>
+            <Text style={{ fontSize: RFValue(23), fontWeight: 'bold', color: '#fff', textDecorationLine: 'underline' }}>Organizer</Text>
           </ImageBackground>
         </TouchableOpacity>
         <Text style={{ textAlign: 'center', marginVertical: height * 0.02 }}>© {new Date().getFullYear()} Anoraks Travels</Text>

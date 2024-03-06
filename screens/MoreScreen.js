@@ -72,7 +72,7 @@ function MoreScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.background}>
             <ScrollView horizontal={false} showsVerticalScrollIndicator={false}>
-                <Text style={{ fontSize: 30, fontWeight: 'bold', paddingVertical: height * 0.02, textAlign: 'center' }}>Anoraks Travels</Text>
+                <Text style={{ fontSize: RFValue(23), fontWeight: 'bold', paddingVertical: height * 0.02, textAlign: 'center' }}>Anoraks Travels</Text>
                 <TouchableOpacity onPress={() => null} style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', paddingVertical: 20 }}>
                     <View style={{ width: 30, height: 30, marginLeft: width * 0.05, justifyContent: 'center', alignItems: 'center' }}>
                         <FontAwesome5 name="user-alt" size={21} color="black" />

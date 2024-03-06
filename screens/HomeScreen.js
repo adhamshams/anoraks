@@ -3,7 +3,7 @@ import { StyleSheet, View, RefreshControl, SafeAreaView, Image, Text, ScrollView
 import { getAuth } from "firebase/auth";
 import { RFValue } from 'react-native-responsive-fontsize';
 import { FontAwesome, AntDesign, FontAwesome5 } from '@expo/vector-icons';
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, where, query, collection, getDocs, orderBy, limit } from 'firebase/firestore'
 import { db } from '../firebase'
 import ContentLoader, { Rect } from 'react-content-loader/native'
 
@@ -18,6 +18,7 @@ function HomeScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true)
   const [userData, setUserData] = useState()
+  const [trips, setTrips] = useState([])
 
   const levelTags = ['Novice Traveler', 'Explorer', 'Wanderer', 'Voyager']
 
@@ -25,20 +26,33 @@ function HomeScreen({ navigation }) {
 
   useEffect(() => {
     async function getData() {
-      try {
-        const docRef = doc(db, "users", auth.currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        console.log(docSnap.data())
-        setUserData(docSnap.data())
-        setRefreshing(false)
+      const results = await Promise.allSettled([
+        fetchUserData(),
+        fetchTrips()
+      ])
+      if (results[0].status === 'fulfilled' && results[1].status === 'fulfilled') {
+        setUserData(results[0].value)
+        setTrips(results[1].value)
         setLoading(false)
-      } catch (error) {
         setRefreshing(false)
-        setLoading(false)
+      } else {
+        alert('An error occurred while fetching data')
       }
     }
     getData()
   }, [refreshing])
+
+  const fetchUserData = async () => {
+    const docRef = doc(db, "users", auth.currentUser.uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.data()
+  }
+
+  const fetchTrips = async () => {
+    const q = query(collection(db, "trips"), where("date", ">", new Date()), orderBy("date", "asc"), limit(5));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => doc.data())
+  }
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
@@ -85,7 +99,7 @@ function HomeScreen({ navigation }) {
               </ImageBackground>
               : null}
             <TouchableOpacity style={{ backgroundColor: '#124c7d', width: width * 0.9, height: height * 0.11, marginTop: height * 0.01, borderRadius: 12, alignSelf: 'center', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <FontAwesome5 name="star" size={30} color="white" style={{ marginLeft: width * 0.025 }} />
+              <FontAwesome5 name="trophy" size={28} color="white" style={{ marginLeft: width * 0.025 }} />
               <View style={{ display: 'flex', flexDirection: 'column', marginLeft: width * 0.025 }}>
                 <Text style={{ color: '#fff', fontSize: RFValue(11), fontWeight: 700 }}>{userData.level < 5 ? levelTags[userData.level] : 'Nomad'}<Text style={{ fontWeight: 500, opacity: 0.7 }}>{' (Level ' + userData.level + ')'}</Text></Text>
                 <Text style={{ color: '#fff', marginTop: height * 0.02, fontSize: RFValue(9.5) }}>{1000 - userData.points} Points to Level {userData.level + 1}</Text>
@@ -104,6 +118,45 @@ function HomeScreen({ navigation }) {
               </View>
             </TouchableOpacity>
             <Text style={{ fontSize: RFValue(23), fontWeight: 'bold', marginTop: height * 0.02, marginLeft: width * 0.05 }}>Upcoming Trips</Text>
+            {trips.length === 0 ?
+              <View style={{ width: '100%', height: height * 0.15, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: RFValue(15), fontWeight: 500 }}>No upcoming trips</Text>
+              </View>
+              :
+              <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ width: '100%', display: 'flex', flexDirection: 'row', marginTop: height * 0.02 }}>
+                {trips.map((trip, index) => {
+                  let imageSource;
+                  switch(trip.destination) {
+                    case 'Siwa Oasis':
+                      imageSource = require('../assets/siwa.jpg');
+                      break;
+                    default:
+                      imageSource = require('../assets/siwa.jpg');
+                  }
+                  return (
+                    <TouchableOpacity key={index} style={{ width: width * 0.7, height: height * 0.2, backgroundColor: '#000', borderRadius: 12, display: 'flex', flexDirection: 'column', marginLeft: width * 0.05 }}>
+                      <ImageBackground source={imageSource} style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 12, display: 'flex', flexDirection: 'column' }} imageStyle={{ borderRadius: 12, opacity: 0.7 }}>
+                        <Text style={{color: '#fff', marginLeft: 15, marginTop: 15, fontSize: 20, fontWeight: 'bold'}}>{trip.destination}</Text>
+                        <View style={{ display: 'flex', flexDirection: 'column', marginTop: 'auto', marginBottom: 15, gap: 5, marginLeft: 15  }}>
+                          <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <FontAwesome name="calendar" size={20} color="#fff" />
+                            <Text style={{ color: '#fff', fontSize: 15, marginLeft: 10, fontWeight: '600' }}>{trip.date.toDate().toDateString()}</Text>
+                          </View>
+                          <Text style={{ color: '#fff', fontSize: 15, marginTop: 5, fontWeight: '600' }}>Starting from EGP {trip.price}</Text>
+                        </View>
+                      </ImageBackground>
+                    </TouchableOpacity>
+                  )
+                })}
+              </ScrollView>
+            }
+            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: height * 0.02, justifyContent: 'space-between', paddingHorizontal: width * 0.05 }}>
+              <Text style={{ fontSize: RFValue(23), fontWeight: 'bold' }}>Blog Posts</Text>
+              <TouchableOpacity onPress={() => null}>
+                <Text style={{ fontSize: RFValue(14), color: '#1247cd', textDecorationLine: 'underline' }}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={{ marginVertical: height * 0.05, textAlign: 'center', fontSize: RFValue(15) }}>No blogs found</Text>
           </View>
         }
       </ScrollView>
