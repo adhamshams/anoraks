@@ -2,13 +2,10 @@ import React, { useEffect } from "react";
 import { StyleSheet, View, ImageBackground, SafeAreaView, Text, ScrollView, TouchableOpacity, Dimensions, BackHandler } from "react-native";
 import { RFValue } from 'react-native-responsive-fontsize';
 import Animated from 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
-function DestinationsListScreen() {
-
-    const navigation = useNavigation();
+function DestinationsListScreen({ navigation }) {
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
@@ -25,9 +22,9 @@ function DestinationsListScreen() {
                     </ImageBackground>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('SiwaScreen')}>
-                    <Animated.Image sharedTransitionTag="siwa" source={require('../assets/siwa.jpg')} style={{ width, height: height * 0.25, alignSelf: 'center', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
-                    </Animated.Image>
+                <ImageBackground source={require('../assets/siwa.jpg')} style={{ width, height: height * 0.25, alignSelf: 'center', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }} imageStyle={{ opacity: 0.7, resizeMode: 'cover' }}>
+                        <Text style={{ fontSize: RFValue(25), fontWeight: '800', color: '#fff', textAlign: 'center' }}>SIWA OASIS</Text>
+                    </ImageBackground>
                 </TouchableOpacity>
                 <TouchableOpacity>
                     <ImageBackground source={require('../assets/black-and-white-desert.jpg')} style={{ width, height: height * 0.25, alignSelf: 'center', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }} imageStyle={{ opacity: 0.7, resizeMode: 'cover' }}>

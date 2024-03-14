@@ -7,7 +7,7 @@ import { MaterialCommunityIcons, FontAwesome, AntDesign } from '@expo/vector-ico
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import AnimatedSplashScreen from './screens/AnimatedSplashScreen';
 import GetStartedScreen from './screens/GetStartedScreen';
@@ -21,7 +21,7 @@ import OurStoryScreen from './screens/OurStoryScreen';
 import DigitalPassportScreen from './screens/DigitalPassportScreen';
 import PersonalizeTripScreen from './screens/PersonalizeTripScreen';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
 
 const { height, width } = Dimensions.get('window');
@@ -107,10 +107,10 @@ export default function App() {
     <NavigationContainer onLayout={onLayoutRootView}>
       <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#193657', shadowColor: '#100505' }, headerTintColor: '#fff', headerBackTitleVisible: false, headerBackImage: () =>  <AntDesign name="arrowleft" size={24} color="#fff" style={{marginLeft: 20}}/>}}>
         <Stack.Screen name="AnimatedSplashScreen" component={AnimatedSplashScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="GetStartedScreen" component={GetStartedScreen} options={{ headerShown: false, animation: 'none', gestureEnabled: false }} />
+        <Stack.Screen name="GetStartedScreen" component={GetStartedScreen} options={{ headerShown: false, animationEnabled: false, gestureEnabled: false }} />
         <Stack.Screen name='LoginScreen' component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name='SignUpScreen' component={SignUpScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false, gestureEnabled: false, animation: 'none' }} />
+        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false, gestureEnabled: false, animationEnabled: false }} />
         <Stack.Screen name="SiwaScreen" component={SiwaScreen} options={{ headerShown: false }} />
         <Stack.Screen name="DigitalPassportScreen" component={DigitalPassportScreen} options={{ headerTitle: 'Digital Passport' }} />
         <Stack.Screen name="PersonalizeTripScreen" component={PersonalizeTripScreen} options={{ headerShown: false }} />

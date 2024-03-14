@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { StyleSheet, View, Dimensions, Text, BackHandler, TouchableOpacity, ImageBackground, Animated } from "react-native";
 import { RFValue } from 'react-native-responsive-fontsize';
 import Button from "../components/Button";
+import { useNavigation } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -23,11 +24,13 @@ const _data = [
   }
 ]
 
-function GetStartedScreen({ navigation }) {
+function GetStartedScreen() {
 
   const slide1Opacity = useRef(new Animated.Value(1)).current;
   const slide2Opacity = useRef(new Animated.Value(0)).current;
   const slide3Opacity = useRef(new Animated.Value(0)).current;
+
+  const navigation = useNavigation();
 
   const fadeInFadeOutAnimation = () => {
     return Animated.sequence([
